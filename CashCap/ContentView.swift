@@ -10,9 +10,9 @@ import SwiftUI
 struct ContentView: View {
     //array of transactions
     @State private var transactions = [
-        Transaction(name: "Coffee", amount: 3.50, kind: .expense),
-        Transaction(name: "Babysitting", amount: 40.00, kind: .income),
-        Transaction(name: "Groceries", amount: 23.75, kind: .expense)
+        Transaction(name: "Coffee", amount: 3.50, kind: .expense, date: .now),
+        Transaction(name: "Babysitting", amount: 40.00, kind: .income, date: .now),
+        Transaction(name: "Groceries", amount: 23.75, kind: .expense, date: .now)
     ]
     
     @State private var showingAddSheet = false
