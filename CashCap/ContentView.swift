@@ -67,6 +67,39 @@ struct ContentView: View {
         }
     }
     
+    func icon(for kind: TransactionKind) -> String {
+        switch kind {
+        case .income:
+            return "arrow.down.left"
+        case .expense:
+            return "arrow.up.right"
+        case .savings:
+            return "banknote"
+        }
+    }
+    
+    func label(for kind: TransactionKind) -> String {
+        switch kind {
+        case .income:
+            return "Income"
+        case .expense:
+            return "Expense"
+        case .savings:
+            return ""
+        }
+    }
+    
+    func sign(for kind: TransactionKind) -> String {
+        switch kind {
+        case .income:
+            return "+"
+        case .expense:
+            return "-"
+        case .savings:
+            return ""
+        }
+    }
+    
     var body: some View {
         NavigationStack {
             ZStack {
@@ -110,6 +143,18 @@ struct ContentView: View {
                             .background(Color.luxeCard, in: Capsule())
                             .accessibilityElement(children: .ignore)
                             .accessibilityLabel("Expenses \(totalExpenses.formatted(.currency(code: "EUR")))")
+
+                            HStack(spacing: 6) {
+                                Image(systemName: "banknote")
+                                Text(totalSavings, format: .currency(code: "EUR"))
+                            }
+                            .font(.subheadline.weight(.semibold))
+                            .foregroundStyle(Color.white)
+                            .padding(.horizontal, 14)
+                            .padding(.vertical, 8)
+                            .background(Color.luxeCard, in: Capsule())
+                            .accessibilityElement(children: .ignore)
+                            .accessibilityLabel("Savings \(totalSavings.formatted(.currency(code: "EUR")))")
                         }
                         .padding(.top, 8)
                     }
@@ -120,8 +165,7 @@ struct ContentView: View {
                         Section("Recent Activity") {
                             ForEach(transactions) { transaction in
                                 HStack(spacing: 14) {
-                                    Image(systemName: transaction.kind == .income
-                                          ? "arrow.down.left" : "arrow.up.right")
+                                    Image(systemName: icon (for: transaction.kind))
                                         .font(.system(size: 16, weight: .semibold))
                                         .foregroundStyle(color(for: transaction.kind))
                                         .frame(width: 38, height: 38)
@@ -130,12 +174,12 @@ struct ContentView: View {
                                     VStack(alignment: .leading, spacing: 2) {
                                         Text(transaction.name)
                                             .font(.body.weight(.medium))
-                                        Text(transaction.kind == .income ? "Income" : "Expense")
+                                        Text(label(for: transaction.kind))
                                             .font(.caption)
                                             .foregroundStyle(.secondary)
                                     }
                                     Spacer()
-                                    Text("\(transaction.kind == .income ? "+" : "−")\(transaction.amount, format: .currency(code: "EUR"))")
+                                    Text("\(sign(for: transaction.kind))\(transaction.amount, format: .currency(code: "EUR"))")
                                         .foregroundStyle(color(for: transaction.kind))
                                 }
                                 .font(.system(.body, design: .rounded).weight(.semibold))
