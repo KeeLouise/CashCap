@@ -30,6 +30,11 @@ struct ContentView: View {
             transaction.kind == .expense}
     }
     
+    var savingsTransactions: [Transaction] {
+        transactions.filter { transaction in
+            transaction.kind == .savings}
+    }
+    
     var totalIncome: Double {
         incomeTransactions.map { transaction in
             transaction.amount
@@ -41,8 +46,25 @@ struct ContentView: View {
         }.reduce(0, +)
     }
     
+    var totalSavings: Double {
+        savingsTransactions.map { transaction in
+            transaction.amount
+        }.reduce(0, +)
+    }
+    
     var balance: Double {
-        totalIncome - totalExpenses
+        totalIncome - totalExpenses - totalSavings
+    }
+    
+    func color(for kind: TransactionKind) -> Color {
+        switch kind {
+        case .income:
+            return .luxeLime
+        case .expense:
+            return .luxeRed
+        case .savings:
+            return .white
+        }
     }
     
     var body: some View {
@@ -101,9 +123,9 @@ struct ContentView: View {
                                     Image(systemName: transaction.kind == .income
                                           ? "arrow.down.left" : "arrow.up.right")
                                         .font(.system(size: 16, weight: .semibold))
-                                        .foregroundStyle(transaction.kind == .income ? Color.luxeLime : Color.luxeRed)
+                                        .foregroundStyle(color(for: transaction.kind))
                                         .frame(width: 38, height: 38)
-                                        .background((transaction.kind == .income ? Color.luxeLime : Color.luxeRed).opacity(0.15))
+                                        .background(color(for: transaction.kind).opacity(0.15))
                                         .clipShape(RoundedRectangle(cornerRadius: 12))
                                     VStack(alignment: .leading, spacing: 2) {
                                         Text(transaction.name)
@@ -114,7 +136,7 @@ struct ContentView: View {
                                     }
                                     Spacer()
                                     Text("\(transaction.kind == .income ? "+" : "−")\(transaction.amount, format: .currency(code: "EUR"))")
-                                        .foregroundStyle(transaction.kind == .income ? Color.luxeLime : Color.luxeRed)
+                                        .foregroundStyle(color(for: transaction.kind))
                                 }
                                 .font(.system(.body, design: .rounded).weight(.semibold))
                                 //reads each row to VoiceOver as one element, e.g. "Coffee, Expense, −€3.50"

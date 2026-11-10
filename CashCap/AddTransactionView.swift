@@ -13,6 +13,7 @@ struct AddTransactionView: View {
     @State private var name = ""
     @State private var amountText = ""
     @State private var kind: TransactionKind = .expense
+    @State private var date = Date.now
     //optional String: nil means "no error right now" (WCAG 3.3.1: errors must be visible, not just in the console)
     @State private var errorMessage: String?
     
@@ -30,12 +31,16 @@ struct AddTransactionView: View {
                 Picker("Kind", selection: $kind) {
                     Text("Expense").tag(TransactionKind.expense)
                     Text("Income").tag(TransactionKind.income)
+                    Text("Savings").tag(TransactionKind.savings)
                 }.pickerStyle(.segmented)
+            }
+            Section("Date") {
+                DatePicker("Date", selection: $date, displayedComponents: .date)
             }
             Section {
                 Button("Save") {
                     if let amount = Double(amountText) {
-                        transactions.append(Transaction(name: name, amount: amount, kind: kind, date: .now))
+                        transactions.append(Transaction(name: name, amount: amount, kind: kind, date: date ))
                         dismiss()
                     } else {
                         errorMessage = "“\(amountText)” isn’t a valid amount. Enter a number like 12.50."
