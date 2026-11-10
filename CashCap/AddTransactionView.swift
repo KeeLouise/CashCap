@@ -35,7 +35,7 @@ struct AddTransactionView: View {
             Section {
                 Button("Save") {
                     if let amount = Double(amountText) {
-                        transactions.append(Transaction(name: name, amount: amount, kind: kind))
+                        transactions.append(Transaction(name: name, amount: amount, kind: kind, date: .now))
                         dismiss()
                     } else {
                         errorMessage = "“\(amountText)” isn’t a valid amount. Enter a number like 12.50."

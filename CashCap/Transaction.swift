@@ -10,6 +10,7 @@ import Foundation
 enum TransactionKind {
     case income
     case expense
+    case savings
 }
 
 struct Transaction: Identifiable {
@@ -17,4 +18,5 @@ struct Transaction: Identifiable {
     let name: String
     let amount: Double
     let kind: TransactionKind
+    let date: Date
 }
