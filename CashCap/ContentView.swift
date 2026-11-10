@@ -14,37 +14,33 @@ struct ContentView: View {
         Transaction(name: "Babysitting", amount: 40.00, kind: .income, date: .now),
         Transaction(name: "Groceries", amount: 23.75, kind: .expense, date: .now)
     ]
-    
+
     @State private var showingAddSheet = false
-    
+
     //scales the big balance number with the user's Dynamic Type setting (WCAG 1.4.4 resize text)
     @ScaledMetric(relativeTo: .largeTitle) private var balanceFontSize = 56.0
-    
-    var incomeTransactions: [Transaction] {
-        transactions.filter { transaction in
-            transaction.kind == .income}
+
+    //total amount of every transaction of one kind
+    func total(for kind: TransactionKind) -> Double {
+        transactions
+            .filter { transaction in
+                transaction.kind == kind
+            }
+            .map { transaction in
+                transaction.amount
+            }
+            .reduce(0, +)
     }
-    
-    var expenseTransactions: [Transaction] {
-        transactions.filter { transaction in
-            transaction.kind == .expense}
-    }
-    
-    var totalIncome: Double {
-        incomeTransactions.map { transaction in
-            transaction.amount
-        }.reduce(0, +)
-    }
-    
-    var totalExpenses: Double {
-        expenseTransactions.map { transaction in transaction.amount
-        }.reduce(0, +)
-    }
-    
+
+    var totalIncome: Double { total(for: .income) }
+    var totalExpenses: Double { total(for: .expense) }
+    var totalSavings: Double { total(for: .savings) }
+
+    //savings leave your spendable money but aren't "spent"
     var balance: Double {
-        totalIncome - totalExpenses
+        totalIncome - totalExpenses - totalSavings
     }
-    
+
     var body: some View {
         NavigationStack {
             ZStack {
@@ -59,35 +55,23 @@ struct ContentView: View {
                             .font(.footnote.weight(.semibold))
                             .textCase(.uppercase)
                             .foregroundStyle(.secondary)
-                        Text(balance, format: .currency(code: "EUR"))
+                        Text(balance, format: .appCurrency)
                             .font(.system(size: balanceFontSize, weight: .heavy, design: .rounded))
                             .foregroundStyle(.white)
 
-                        //income / expense stats as Liquid Glass pills
-                        HStack(spacing: 12) {
-                            HStack(spacing: 6) {
-                                Image(systemName: "arrow.down.left")
-                                Text(totalIncome, format: .currency(code: "EUR"))
+                        //income / expense / savings totals
+                        //side by side when they fit, stacked when text size makes them too wide
+                        ViewThatFits {
+                            HStack(spacing: 12) {
+                                StatPill(title: "Income", kind: .income, amount: totalIncome)
+                                StatPill(title: "Expenses", kind: .expense, amount: totalExpenses)
+                                StatPill(title: "Savings", kind: .savings, amount: totalSavings)
                             }
-                            .font(.subheadline.weight(.semibold))
-                            .foregroundStyle(Color.luxeLime)
-                            .padding(.horizontal, 14)
-                            .padding(.vertical, 8)
-                            .background(Color.luxeCard, in: Capsule())
-                            .accessibilityElement(children: .ignore)
-                            .accessibilityLabel("Income \(totalIncome.formatted(.currency(code: "EUR")))")
-
-                            HStack(spacing: 6) {
-                                Image(systemName: "arrow.up.right")
-                                Text(totalExpenses, format: .currency(code: "EUR"))
+                            VStack(spacing: 8) {
+                                StatPill(title: "Income", kind: .income, amount: totalIncome)
+                                StatPill(title: "Expenses", kind: .expense, amount: totalExpenses)
+                                StatPill(title: "Savings", kind: .savings, amount: totalSavings)
                             }
-                            .font(.subheadline.weight(.semibold))
-                            .foregroundStyle(Color.luxeRed)
-                            .padding(.horizontal, 14)
-                            .padding(.vertical, 8)
-                            .background(Color.luxeCard, in: Capsule())
-                            .accessibilityElement(children: .ignore)
-                            .accessibilityLabel("Expenses \(totalExpenses.formatted(.currency(code: "EUR")))")
                         }
                         .padding(.top, 8)
                     }
@@ -97,29 +81,8 @@ struct ContentView: View {
                     List {
                         Section("Recent Activity") {
                             ForEach(transactions) { transaction in
-                                HStack(spacing: 14) {
-                                    Image(systemName: transaction.kind == .income
-                                          ? "arrow.down.left" : "arrow.up.right")
-                                        .font(.system(size: 16, weight: .semibold))
-                                        .foregroundStyle(transaction.kind == .income ? Color.luxeLime : Color.luxeRed)
-                                        .frame(width: 38, height: 38)
-                                        .background((transaction.kind == .income ? Color.luxeLime : Color.luxeRed).opacity(0.15))
-                                        .clipShape(RoundedRectangle(cornerRadius: 12))
-                                    VStack(alignment: .leading, spacing: 2) {
-                                        Text(transaction.name)
-                                            .font(.body.weight(.medium))
-                                        Text(transaction.kind == .income ? "Income" : "Expense")
-                                            .font(.caption)
-                                            .foregroundStyle(.secondary)
-                                    }
-                                    Spacer()
-                                    Text("\(transaction.kind == .income ? "+" : "−")\(transaction.amount, format: .currency(code: "EUR"))")
-                                        .foregroundStyle(transaction.kind == .income ? Color.luxeLime : Color.luxeRed)
-                                }
-                                .font(.system(.body, design: .rounded).weight(.semibold))
-                                //reads each row to VoiceOver as one element, e.g. "Coffee, Expense, −€3.50"
-                                .accessibilityElement(children: .combine)
-                                .listRowBackground(Color.luxeCard)
+                                TransactionRow(transaction: transaction)
+                                    .listRowBackground(Color.luxeCard)
                             }
                         }
                     }
@@ -144,6 +107,7 @@ struct ContentView: View {
             }
         }
         //Mono Luxe commits to dark styling in both system modes
+        //(AddTransactionView sets this too: sheets don't inherit it)
         .preferredColorScheme(.dark)
     }
 }
