@@ -16,6 +16,8 @@ struct ContentView: View {
     ]
 
     @State private var showingAddSheet = false
+    
+    @State private var editingTransaction: Transaction?
 
     //scales the big balance number with the user's Dynamic Type setting (WCAG 1.4.4 resize text)
     @ScaledMetric(relativeTo: .largeTitle) private var balanceFontSize = 56.0
@@ -39,6 +41,10 @@ struct ContentView: View {
     //savings leave your spendable money but aren't "spent"
     var balance: Double {
         totalIncome - totalExpenses - totalSavings
+    }
+    
+    func delete(at offsets: IndexSet) {
+        transactions.remove(atOffsets: offsets)
     }
 
     var body: some View {
@@ -81,9 +87,15 @@ struct ContentView: View {
                     List {
                         Section("Recent Activity") {
                             ForEach(transactions) { transaction in
-                                TransactionRow(transaction: transaction)
-                                    .listRowBackground(Color.luxeCard)
+                                Button {
+                                    editingTransaction = transaction
+                                } label: {
+                                    TransactionRow(transaction: transaction)
+                                }
+                                .buttonStyle(.plain)
+                                .listRowBackground(Color.luxeCard)
                             }
+                            .onDelete(perform: delete)
                         }
                     }
                     .scrollContentBackground(.hidden)
@@ -104,6 +116,9 @@ struct ContentView: View {
             }
             .sheet(isPresented: $showingAddSheet) {
                 AddTransactionView(transactions: $transactions)
+            }
+            .sheet(item: $editingTransaction) { transaction in
+                AddTransactionView(transactions: $transactions, editing: transaction)
             }
         }
         //Mono Luxe commits to dark styling in both system modes
