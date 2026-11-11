@@ -10,6 +10,7 @@ import SwiftUI
 struct AddTransactionView: View {
     @Environment(\.dismiss) private var dismiss
     @Binding var transactions: [Transaction]
+    var editing: Transaction? = nil
     @State private var name = ""
     @State private var amountText = ""
     @State private var kind: TransactionKind = .expense
@@ -40,7 +41,16 @@ struct AddTransactionView: View {
             Section {
                 Button("Save") {
                     if let amount = Double(amountText) {
-                        transactions.append(Transaction(name: name, amount: amount, kind: kind, date: date))
+                        if let editing, let index = transactions.firstIndex(where: { transaction in
+                            transaction.id == editing.id
+                        }) {
+                            transactions[index].name = name
+                            transactions[index].amount = amount
+                            transactions[index].kind = kind
+                            transactions[index].date = date
+                        } else {
+                            transactions.append(Transaction(name: name, amount: amount, kind: kind, date: date))
+                        }
                         dismiss()
                     } else {
                         errorMessage = "“\(amountText)” isn’t a valid amount. Enter a number like 12.50."
@@ -56,6 +66,14 @@ struct AddTransactionView: View {
         .tint(.luxeLime)
         //sheets don't inherit the presenting view's color scheme, so commit to dark here too
         .preferredColorScheme(.dark)
+        .onAppear{
+            if let editing {
+                name = editing.name
+                amountText = String(editing.amount)
+                kind = editing.kind
+                date = editing.date
+            }
+        }
     }
 }
 

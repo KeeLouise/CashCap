@@ -15,8 +15,8 @@ enum TransactionKind {
 
 struct Transaction: Identifiable {
     let id = UUID()
-    let name: String
-    let amount: Double
-    let kind: TransactionKind
-    let date: Date
+    var name: String
+    var amount: Double
+    var kind: TransactionKind
+    var date: Date
 }
