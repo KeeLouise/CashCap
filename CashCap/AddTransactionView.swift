@@ -40,24 +40,10 @@ struct AddTransactionView: View {
             }
             Section {
                 Button("Save") {
-                    if let amount = Double(amountText) {
-                        if let editing, let index = transactions.firstIndex(where: { transaction in
-                            transaction.id == editing.id
-                        }) {
-                            transactions[index].name = name
-                            transactions[index].amount = amount
-                            transactions[index].kind = kind
-                            transactions[index].date = date
-                        } else {
-                            transactions.append(Transaction(name: name, amount: amount, kind: kind, date: date))
-                        }
-                        dismiss()
-                    } else {
-                        errorMessage = "“\(amountText)” isn’t a valid amount. Enter a number like 12.50."
-                    }
+                    save()
                 }
-                if let errorMessage {
-                    Text(errorMessage)
+                if let errorMessage{
+                    Text (errorMessage)
                         .font(.footnote)
                         .foregroundStyle(Color.luxeRed)
                 }
@@ -74,6 +60,33 @@ struct AddTransactionView: View {
                 date = editing.date
             }
         }
+    }
+    
+    func save() {
+        let trimmedName = name.trimmingCharacters(in: .whitespaces)
+        
+        guard !trimmedName.isEmpty else {
+            errorMessage = "Enter a name for this transaction."
+            return
+        }
+        
+        let cleanedAmount = amountText.replacingOccurrences(of: ",", with: ".")
+
+        guard let amount = Double(cleanedAmount) else {
+            errorMessage = "“\(amountText)” isn’t a valid amount. Enter a number like 12.50."
+            return
+        }
+        
+        if let editing, let index = transactions.firstIndex(where: {transaction in transaction.id == editing.id})
+        {
+            transactions[index].name = trimmedName
+            transactions[index].amount = amount
+            transactions[index].kind = kind
+            transactions[index].date = date
+        } else {
+            transactions.append(Transaction(name: trimmedName, amount: amount, kind: kind, date: date))
+        }
+        dismiss()
     }
 }
 

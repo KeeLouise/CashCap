@@ -103,16 +103,22 @@ struct ContentView: View {
             }
             .navigationTitle("CashCap")
             .toolbar {
-                Button {
-                    showingAddSheet = true
-                } label: {
-                    Image(systemName: "plus")
-                        .font(.headline.weight(.bold))
-                        .foregroundStyle(Color.luxeBackground)
-                        .frame(width: 36, height: 36)
-                        .background(Color.luxeLime, in: Circle())
+                ToolbarItem(placement: .topBarLeading) {
+                    EditButton()
+                        .tint(.luxeLime)
                 }
-                .accessibilityLabel("Add transaction")
+                ToolbarItem(placement:  .topBarTrailing) {
+                    Button {
+                        showingAddSheet = true
+                    } label: {
+                        Image(systemName: "plus")
+                            .font(.headline.weight(.bold))
+                            .foregroundStyle(Color.luxeBackground)
+                            .frame(width: 36, height: 36)
+                            .background(Color.luxeLime, in: Circle())
+                    }
+                    .accessibilityLabel("Add transaction")
+                }
             }
             .sheet(isPresented: $showingAddSheet) {
                 AddTransactionView(transactions: $transactions)
