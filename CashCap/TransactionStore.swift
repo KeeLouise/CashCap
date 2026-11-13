@@ -14,9 +14,35 @@ class TransactionStore {
         load()
     }
     
+    var selectedMonth = Date.now
+    
+    var monthTransactions: [Transaction] {
+        transactions
+            .filter { transaction in
+                Calendar.current.isDate(transaction.date, equalTo: selectedMonth, toGranularity: .month)
+            }
+            .sorted { first, second in
+                first.date > second.date
+            }
+    }
+    
+    func changeMonth(by months: Int) {
+        if let newMonth = Calendar.current.date(byAdding: .month, value: months, to: selectedMonth) {
+            selectedMonth = newMonth
+        }
+    }
+    
+    var newTransactionDate: Date {
+        let calendar = Calendar.current
+        if calendar.isDate(selectedMonth, equalTo: .now, toGranularity: .month) {
+            return .now
+        }
+        return calendar.dateInterval(of: .month, for: selectedMonth)?.start ?? selectedMonth
+    }
+    
     /// Sum of all transactions of one kind.
     func total(for kind: TransactionKind) -> Decimal {
-        transactions
+        monthTransactions
             .filter { transaction in
                 transaction.kind == kind
             }
@@ -36,8 +62,9 @@ class TransactionStore {
     }
 
     func delete(at offsets: IndexSet) {
-        for index in offsets.sorted(by: >) {
-            transactions.remove(at: index)
+        let ids = offsets.map { monthTransactions[$0].id}
+        transactions.removeAll() { transaction in
+            ids.contains(transaction.id)
         }
     }
     
