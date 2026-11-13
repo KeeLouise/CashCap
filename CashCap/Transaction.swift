@@ -7,14 +7,14 @@
 
 import Foundation
 
-enum TransactionKind {
+enum TransactionKind: Codable {
     case income
     case expense
     case savings
 }
 
-struct Transaction: Identifiable {
-    let id = UUID()
+struct Transaction: Identifiable, Codable, Equatable {
+    var id = UUID()
     var name: String
     var amount: Double
     var kind: TransactionKind
