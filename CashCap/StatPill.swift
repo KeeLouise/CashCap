@@ -1,16 +1,9 @@
-//
-//  StatPill.swift
-//  CashCap
-//
-//  The small rounded totals under the balance (income, expenses, savings).
-//
-
 import SwiftUI
 
 struct StatPill: View {
     let title: String
     let kind: TransactionKind
-    let amount: Double
+    let amount: Decimal
 
     var body: some View {
         HStack(spacing: 6) {

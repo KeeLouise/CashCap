@@ -16,7 +16,7 @@ enum TransactionKind: Codable {
 struct Transaction: Identifiable, Codable, Equatable {
     var id = UUID()
     var name: String
-    var amount: Double
+    var amount: Decimal
     var kind: TransactionKind
     var date: Date
 }

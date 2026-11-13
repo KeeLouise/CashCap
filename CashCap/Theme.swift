@@ -8,6 +8,6 @@ extension Color {
 }
 
 //the app's one currency: write `format: .appCurrency` instead of repeating "EUR" everywhere
-extension FormatStyle where Self == FloatingPointFormatStyle<Double>.Currency {
+extension FormatStyle where Self == Decimal.FormatStyle.Currency {
     static var appCurrency: Self { .currency(code: "EUR") }
 }
