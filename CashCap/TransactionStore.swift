@@ -5,7 +5,14 @@ import Observation
 /// Views read from it and call its methods, so the rules stay in one place.
 @Observable
 class TransactionStore {
-    var transactions: [Transaction] = []
+    var transactions: [Transaction] = [] {
+        didSet {
+            save()
+        }
+    }
+    init() {
+        load()
+    }
     
     /// Sum of all transactions of one kind.
     func total(for kind: TransactionKind) -> Double {

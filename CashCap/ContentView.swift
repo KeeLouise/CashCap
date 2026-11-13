@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State private var store = TransactionStore()
+    @Environment(TransactionStore.self) private var store
     
     @State private var showingAddSheet = false
     
@@ -107,25 +107,20 @@ struct ContentView: View {
                     }
                 }
                 .sheet(isPresented: $showingAddSheet) {
-                    AddTransactionView(transactions: $store.transactions)
+                    AddTransactionView(transactions: Bindable(store).transactions)
                 }
                 .sheet(item: $editingTransaction) { transaction in
-                    AddTransactionView(transactions: $store.transactions, editing: transaction)
+                    AddTransactionView(transactions: Bindable(store).transactions, editing: transaction)
                 }
             
             //Mono Luxe commits to dark styling in both system modes
             //(AddTransactionView sets this too: sheets don't inherit it)
             .preferredColorScheme(.dark)
-            .onAppear {
-                store.load()
-            }
-            .onChange(of: store.transactions) {
-                store.save()
-            }
         }
     }
 }
 
 #Preview {
     ContentView()
+        .environment(TransactionStore())
 }
