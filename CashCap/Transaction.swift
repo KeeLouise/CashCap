@@ -13,7 +13,7 @@ enum TransactionKind: Codable {
     case savings
 }
 
-struct Transaction: Identifiable, Codable {
+struct Transaction: Identifiable, Codable, Equatable {
     var id = UUID()
     var name: String
     var amount: Double

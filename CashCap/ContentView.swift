@@ -9,11 +9,7 @@ import SwiftUI
 
 struct ContentView: View {
     //array of transactions
-    @State private var transactions = [
-        Transaction(name: "Coffee", amount: 3.50, kind: .expense, date: .now),
-        Transaction(name: "Babysitting", amount: 40.00, kind: .income, date: .now),
-        Transaction(name: "Groceries", amount: 23.75, kind: .expense, date: .now)
-    ]
+    @State private var transactions: [Transaction] = []
 
     @State private var showingAddSheet = false
     
@@ -46,7 +42,29 @@ struct ContentView: View {
     func delete(at offsets: IndexSet) {
         transactions.remove(atOffsets: offsets)
     }
+    
+    var saveURL: URL {
+        URL.documentsDirectory.appending(path: "transactions.json")
+    }
 
+    func save() {
+        do {
+            let data = try JSONEncoder().encode(transactions)
+            try data.write(to: saveURL, options: .atomic)
+        } catch {
+            print("Could not save transactions: \(error)")
+        }
+    }
+    
+    func load() {
+        do {
+            let data = try Data(contentsOf: saveURL)
+            transactions = try JSONDecoder().decode([Transaction].self, from: data)
+        } catch {
+            print("Nothing to load: \(error)")
+        }
+    }
+    
     var body: some View {
         NavigationStack {
             ZStack {
@@ -130,6 +148,12 @@ struct ContentView: View {
         //Mono Luxe commits to dark styling in both system modes
         //(AddTransactionView sets this too: sheets don't inherit it)
         .preferredColorScheme(.dark)
+        .onAppear {
+            load()
+        }
+        .onChange(of: transactions) {
+            save()
+        }
     }
 }
 
