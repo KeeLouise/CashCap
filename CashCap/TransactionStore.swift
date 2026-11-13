@@ -15,7 +15,7 @@ class TransactionStore {
     }
     
     /// Sum of all transactions of one kind.
-    func total(for kind: TransactionKind) -> Double {
+    func total(for kind: TransactionKind) -> Decimal {
         transactions
             .filter { transaction in
                 transaction.kind == kind
@@ -26,12 +26,12 @@ class TransactionStore {
             .reduce(0, +)
     }
 
-    var totalIncome: Double { total(for: .income) }
-    var totalExpenses: Double { total(for: .expense) }
-    var totalSavings: Double { total(for: .savings) }
+    var totalIncome: Decimal { total(for: .income) }
+    var totalExpenses: Decimal { total(for: .expense) }
+    var totalSavings: Decimal { total(for: .savings) }
 
     /// Money left after expenses and money set aside.
-    var balance: Double {
+    var balance: Decimal {
         totalIncome - totalExpenses - totalSavings
     }
 

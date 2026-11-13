@@ -55,7 +55,7 @@ struct AddTransactionView: View {
         .onAppear{
             if let editing {
                 name = editing.name
-                amountText = String(editing.amount)
+                amountText = "\(editing.amount)"
                 kind = editing.kind
                 date = editing.date
             }
@@ -72,8 +72,8 @@ struct AddTransactionView: View {
         
         let cleanedAmount = amountText.replacingOccurrences(of: ",", with: ".")
 
-        guard let amount = Double(cleanedAmount) else {
-            errorMessage = "“\(amountText)” isn’t a valid amount. Enter a number like 12.50."
+        guard let amount = parseAmount(amountText), amount > 0 else {
+            errorMessage = "“\(amountText)” isn’t a valid amount. Use a number above zero, like 12.50."
             return
         }
         
@@ -87,6 +87,14 @@ struct AddTransactionView: View {
             transactions.append(Transaction(name: trimmedName, amount: amount, kind: kind, date: date))
         }
         dismiss()
+    }
+    
+    /// Accepts digits with an optional "." or "," and at most two decimals.
+    /// Anything else is rejected rather than partly read.
+    private func parseAmount(_ text: String) -> Decimal? {
+        let trimmed = text.trimmingCharacters(in: .whitespaces)
+        guard trimmed.wholeMatch(of: /[0-9]+([.,][0-9]{1,2})?/) != nil else { return nil }
+        return Decimal(string: trimmed.replacingOccurrences(of: ",", with: "."))
     }
 }
 
