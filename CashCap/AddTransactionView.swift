@@ -11,6 +11,7 @@ struct AddTransactionView: View {
     @Environment(\.dismiss) private var dismiss
     @Binding var transactions: [Transaction]
     var editing: Transaction? = nil
+    var initialDate: Date = .now
     @State private var name = ""
     @State private var amountText = ""
     @State private var kind: TransactionKind = .expense
@@ -58,6 +59,8 @@ struct AddTransactionView: View {
                 amountText = "\(editing.amount)"
                 kind = editing.kind
                 date = editing.date
+            } else {
+                date = initialDate
             }
         }
     }
@@ -69,8 +72,6 @@ struct AddTransactionView: View {
             errorMessage = "Enter a name for this transaction."
             return
         }
-        
-        let cleanedAmount = amountText.replacingOccurrences(of: ",", with: ".")
 
         guard let amount = parseAmount(amountText), amount > 0 else {
             errorMessage = "“\(amountText)” isn’t a valid amount. Use a number above zero, like 12.50."
